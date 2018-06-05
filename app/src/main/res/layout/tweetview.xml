@@ -8,6 +8,8 @@
     android:gravity="center">
 
     <TextView
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
         android:id="@+id/tweet_format"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

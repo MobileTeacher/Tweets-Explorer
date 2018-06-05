@@ -1,5 +1,6 @@
 package br.edu.infnet.tweetexplorer;
 
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,19 +26,21 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
 
     ArrayAdapter<String> adapter;
     ListView listView;
-    ProgressBar progressBar;
+    //ProgressBar progressBar;
 
+    SwipeRefreshLayout swipeRefreshLayout;
     SearchService searchService;
+    String lastSearch = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main2);
 
-        progressBar = findViewById(R.id.progressBar);
+        //progressBar = findViewById(R.id.progressBar);
 
         Twitter.initialize(this);
         String[] items = {"Tweet1", "Tweet2", "Tweet3", "Tweet4", "Tweet5", "Tweet6"};
@@ -54,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(this);
 
         TwitterApiClient twitterApiClient = TwitterCore.getInstance().getApiClient();
         //StatusesService statusesService = twitterApiClient.getStatusesService();
@@ -62,21 +67,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void searchTweets(View v){
-        progressBar.setVisibility(View.VISIBLE);
+        //progressBar.setVisibility(View.VISIBLE);
         EditText searchField = findViewById(R.id.search_field);
-        String searchString = searchField.getText().toString();
+        lastSearch = searchField.getText().toString();
         searchField.setText("");
 
+        swipeRefreshLayout.setRefreshing(true);
+        updateData(lastSearch);
+    }
+
+
+    private void updateData(String searchString){
         Call<Search> searcher = searchService.tweets(searchString,
-                                                    null,
-                                                    null,
-                                                    null,
-                                                    null,
-                                                    null,
-                                                    null,
-                                                    null,
-                                                    null,
-                                                    null);
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
         searcher.enqueue(new Callback<Search>() {
             @Override
             public void onResponse(Call<Search> call, Response<Search> response) {
@@ -88,12 +99,16 @@ public class MainActivity extends AppCompatActivity {
                 }
                 String[] tweetsArray = tweetsTextList.toArray(new String[0]);
                 adapter = new ArrayAdapter<>(MainActivity.this,
-                                                R.layout.tweetview,
-                                                R.id.tweet_format,
-                                                tweetsArray);
+                        R.layout.tweetview,
+                        R.id.tweet_format,
+                        tweetsArray);
                 listView.setAdapter(adapter);
                 adapter.notifyDataSetChanged();
-                progressBar.setVisibility(View.GONE);
+                //progressBar.setVisibility(View.GONE);
+
+                if (swipeRefreshLayout.isRefreshing()){
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
 
             @Override
@@ -104,5 +119,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
+    @Override
+    public void onRefresh() {
+        updateData(lastSearch);
+    }
 }
