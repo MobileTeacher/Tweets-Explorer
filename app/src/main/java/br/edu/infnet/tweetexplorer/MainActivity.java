@@ -28,7 +28,7 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
 
-    ArrayAdapter<String> adapter;
+    ArrayAdapter adapter;
     ListView listView;
     //ProgressBar progressBar;
 
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         Twitter.initialize(this);
         String[] items = {"Tweet1", "Tweet2", "Tweet3", "Tweet4", "Tweet5", "Tweet6"};
-        adapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, items);
+        adapter = new ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, items);
 
 
         listView = findViewById(R.id.tweetsList);
@@ -98,10 +98,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     tweetsTextList.add(content);
                 }
                 String[] tweetsArray = tweetsTextList.toArray(new String[0]);
-                adapter = new ArrayAdapter<>(MainActivity.this,
+                /*adapter = new ArrayAdapter<>(MainActivity.this,
                         R.layout.tweetview,
                         R.id.tweet_format,
-                        tweetsArray);
+                        tweetsArray);*/
+                adapter = new TweetAdapter(MainActivity.this, 0, response.body().tweets);
                 listView.setAdapter(adapter);
                 adapter.notifyDataSetChanged();
                 //progressBar.setVisibility(View.GONE);
